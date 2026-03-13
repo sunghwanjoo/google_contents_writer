@@ -16,7 +16,7 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
 from google_scraper import get_google_titles, shutdown_driver
-from title_generator import _score_title
+from title_generator import _score_title, generate_seo_titles
 
 # ── 환경변수 로드 (.env 파일) ─────────────────────────────────
 load_dotenv()
@@ -319,10 +319,18 @@ def scrape():
     seo_titles = []
     try:
         seo_titles = _generate_seo_titles_ai(q, titles, related)
-        print(f"[SEO] {len(seo_titles)}개 생성됨")
+        print(f"[SEO AI] {len(seo_titles)}개 생성됨")
     except Exception as e:
-        print(f"[SEO 오류] {e}")
+        print(f"[SEO AI 오류] {e}")
         traceback.print_exc()
+
+    # AI 생성 실패 시 규칙 기반 생성으로 폴백
+    if not seo_titles:
+        try:
+            seo_titles = generate_seo_titles(q, titles, related)
+            print(f"[SEO 규칙기반] {len(seo_titles)}개 생성됨")
+        except Exception as e:
+            print(f"[SEO 규칙기반 오류] {e}")
 
     return jsonify({"titles": titles, "related": related, "seo_titles": seo_titles})
 

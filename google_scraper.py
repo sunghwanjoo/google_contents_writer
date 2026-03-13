@@ -166,16 +166,37 @@ def get_google_titles(query: str) -> tuple[list[str], list[str]]:
             except Exception:
                 pass
 
-        # ── 4. 제목 추출 ─────────────────────────────────────────
-        title_spans = driver.find_elements(By.CSS_SELECTOR, "h3 .LC20lb")
+        # ── 4. 제목 추출 (JS로 사이트링크·PAA 제외) ─────────────
+        script = """
+            const adTexts = arguments[0];
+            const seen = new Set(adTexts);
+            const results = [];
 
-        if title_spans:
-            for span in title_spans:
-                text = span.text.strip()
-                if text and text not in ad_h3_texts and not _is_bad_title(text):
-                    titles.append(text)
-        else:
-            # 폴백: LC20lb 없을 때
+            document.querySelectorAll('#search h3 .LC20lb').forEach(function(span) {
+                // 사이트링크 제외 (HiHjCd, o5PEGf, dG2XIf)
+                if (span.closest('.HiHjCd') ||
+                    span.closest('.o5PEGf') ||
+                    span.closest('.dG2XIf')) return;
+                // PAA(사람들이 자주 묻는 질문) 제외
+                if (span.closest('.related-question-pair') ||
+                    span.closest('.g-accordion-expander')) return;
+                // 동영상 캐러셀 제외
+                if (span.closest('.X5OiLe') ||
+                    span.closest('g-scrolling-carousel')) return;
+
+                const text = (span.textContent || '').trim();
+                if (text.length > 2 && !seen.has(text)) {
+                    seen.add(text);
+                    results.push(text);
+                }
+            });
+            return results;
+        """
+        js_titles = driver.execute_script(script, list(ad_h3_texts))
+        titles = [t for t in js_titles if not _is_bad_title(t)]
+
+        # 폴백: JS 결과가 없을 때
+        if not titles:
             try:
                 search_container = driver.find_element(By.ID, "search")
                 for h3 in search_container.find_elements(By.TAG_NAME, "h3"):

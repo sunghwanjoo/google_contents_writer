@@ -648,7 +648,7 @@
       <hr class="divider" />
       <div class="seo-header">
         <h2>🏆 SEO 최적화 제목 추천</h2>
-        <span class="seo-badge">TOP 10</span>
+        <span class="seo-badge" id="seoBadge">TOP 10</span>
       </div>
       <div id="seoList"></div>
     </div>
@@ -895,8 +895,13 @@
       } catch(e) { return false; }
     }
 
-    // 로그인 성공 후 URL 파라미터 처리
-    if (new URLSearchParams(location.search).get('login') === 'success') {
+    // 팝업에서 로그인 성공 시 부모 창에 알리고 닫기
+    if (window.opener && new URLSearchParams(location.search).get('login') === 'success') {
+      window.opener.postMessage('login_success', '*');
+      window.close();
+    }
+    // 일반 리디렉션으로 돌아온 경우 URL 정리
+    if (!window.opener && new URLSearchParams(location.search).get('login') === 'success') {
       history.replaceState({}, '', '/');
     }
 
@@ -912,12 +917,36 @@
       }
       const loggedIn = await checkLoginStatus();
       if (!loggedIn) {
-        if (confirm('Google 로그인이 필요합니다.\n지금 로그인하시겠어요?')) {
-          window.location.href = '/oauth/login';
-        }
+        openLoginPopup(function() {
+          openPublishModal();
+        });
         return;
       }
       openPublishModal();
+    }
+
+    // ── Google 로그인 팝업 ────────────────────────────────────
+    function openLoginPopup(onSuccess) {
+      const w = 500, h = 620;
+      const left = Math.round(window.screenX + (window.outerWidth - w) / 2);
+      const top  = Math.round(window.screenY + (window.outerHeight - h) / 2);
+      const popup = window.open(
+        '/oauth/login',
+        'google-login',
+        `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      );
+      if (!popup) {
+        alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+        return;
+      }
+      function handleMessage(e) {
+        if (e.data === 'login_success') {
+          window.removeEventListener('message', handleMessage);
+          checkLoginStatus();
+          if (typeof onSuccess === 'function') onSuccess();
+        }
+      }
+      window.addEventListener('message', handleMessage);
     }
 
     // ── 발행 모달 열기/닫기 ──────────────────────────────────
@@ -1047,6 +1076,7 @@
         return;
       }
       seoList.innerHTML = '';
+      document.getElementById('seoBadge').textContent = 'TOP ' + _lastSeoTitles.length;
       renderSeoTitles(_lastQuery, _lastSeoTitles, seoList, seoSection);
       seoGenWrap.style.display = 'none';
     }
