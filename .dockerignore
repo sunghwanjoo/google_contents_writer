@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+시작.bat
+API_KEY_설정방법.txt
+.git/

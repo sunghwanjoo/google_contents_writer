@@ -1,0 +1,10 @@
+flask
+flask-cors
+flask-session
+selenium
+webdriver-manager
+anthropic
+python-dotenv
+google-auth
+google-auth-oauthlib
+google-api-python-client

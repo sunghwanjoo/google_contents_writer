@@ -1,0 +1,16 @@
+# 환경변수 (API 키 등 민감 정보)
+.env
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# Flask 세션
+.flask_session/
+
+# 임시 파일
+page_source.html
+
+# Claude 설정
+.claude/
