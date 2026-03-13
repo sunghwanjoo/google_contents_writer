@@ -1,5 +1,6 @@
 # 환경변수 (API 키 등 민감 정보)
 .env
+중요_api key.txt
 
 # Python 캐시
 __pycache__/

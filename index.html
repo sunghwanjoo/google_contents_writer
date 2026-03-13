@@ -704,7 +704,24 @@
        z-index:2000;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:20px;padding:32px 28px;width:420px;max-width:95vw;
                 box-shadow:0 8px 32px rgba(0,0,0,.18);">
-      <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;">🚀 블로그스팟 예약 발행</h3>
+      <h3 style="font-size:17px;font-weight:700;margin-bottom:16px;">🚀 발행하기</h3>
+
+      <!-- 플랫폼 탭 -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <button id="tabBlogspot" onclick="switchTab('blogspot')"
+                style="flex:1;padding:10px;border-radius:10px;border:2px solid #1a73e8;
+                       background:#1a73e8;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
+          블로그스팟
+        </button>
+        <button id="tabTistory" onclick="switchTab('tistory')"
+                style="flex:1;padding:10px;border-radius:10px;border:2px solid #dadce0;
+                       background:#fff;color:#5f6368;font-size:14px;font-weight:700;cursor:pointer;">
+          티스토리
+        </button>
+      </div>
+
+      <!-- 블로그스팟 패널 -->
+      <div id="panelBlogspot">
 
       <!-- 블로그 선택 -->
       <label style="font-size:13px;font-weight:600;color:#5f6368;">블로그 선택</label>
@@ -740,6 +757,18 @@
           📅 예약 발행
         </button>
       </div>
+
+      </div><!-- /panelBlogspot -->
+
+      <!-- 티스토리 패널 (껍데기) -->
+      <div id="panelTistory" style="display:none;">
+        <div style="text-align:center;padding:32px 0;color:#5f6368;">
+          <div style="font-size:36px;margin-bottom:12px;">🚧</div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:6px;">티스토리 연동 준비 중</div>
+          <div style="font-size:13px;">곧 추가될 예정입니다.</div>
+        </div>
+      </div><!-- /panelTistory -->
+
     </div>
   </div>
 
@@ -963,6 +992,23 @@
       } catch(e) {
         status.style.color = '#ea4335';
         status.textContent = `❌ 네트워크 오류: ${e.message}`;
+      }
+    }
+
+    // ── 발행 탭 전환 ──────────────────────────────────────────
+    function switchTab(tab) {
+      const isBlogspot = tab === 'blogspot';
+      document.getElementById('panelBlogspot').style.display = isBlogspot ? 'block' : 'none';
+      document.getElementById('panelTistory').style.display  = isBlogspot ? 'none'  : 'block';
+
+      const btnB = document.getElementById('tabBlogspot');
+      const btnT = document.getElementById('tabTistory');
+      if (isBlogspot) {
+        btnB.style.background = '#1a73e8'; btnB.style.color = '#fff'; btnB.style.borderColor = '#1a73e8';
+        btnT.style.background = '#fff';    btnT.style.color = '#5f6368'; btnT.style.borderColor = '#dadce0';
+      } else {
+        btnT.style.background = '#f06292'; btnT.style.color = '#fff'; btnT.style.borderColor = '#f06292';
+        btnB.style.background = '#fff';    btnB.style.color = '#5f6368'; btnB.style.borderColor = '#dadce0';
       }
     }
 
